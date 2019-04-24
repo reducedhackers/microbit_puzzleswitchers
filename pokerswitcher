@@ -12,6 +12,31 @@ input.onButtonPressed(Button.A, function () {
         suite[suitearray].showImage(0)
     }
 })
+function CheckNetworkNumber() {
+    if (input.pinIsPressed(TouchPin.P1) && !(input.pinIsPressed(TouchPin.P2))) {
+        networknumber = 1
+    } else if (input.pinIsPressed(TouchPin.P2) && !(input.pinIsPressed(TouchPin.P1))) {
+        networknumber = 2
+    } else if (input.pinIsPressed(TouchPin.P1) && input.pinIsPressed(TouchPin.P2)) {
+        networknumber = 3
+    } else if (!(input.pinIsPressed(TouchPin.P2)) && !(input.pinIsPressed(TouchPin.P1))) {
+        networknumber = 0
+    } else {
+        networknumber = 4
+    }
+    if (suitearray == thisMicrobitNuber) {
+        pins.digitalWritePin(DigitalPin.P0, 1)
+    }
+}
+function checkenableButtons() {
+    if (thisMicrobitNuber != networknumber) {
+        basic.showIcon(IconNames.No)
+        enableButtons = 0
+    } else {
+        enableButtons = 1
+        suite[suitearray].showImage(0)
+    }
+}
 input.onButtonPressed(Button.B, function () {
     if (enableButtons == 1) {
         suitearray += -1
@@ -19,6 +44,28 @@ input.onButtonPressed(Button.B, function () {
             suitearray = 4
         }
         suite[suitearray].showImage(0)
+    }
+})
+function SetPinvalues() {
+    pins.digitalWritePin(DigitalPin.P0, 0)
+    if (networknumber == suitearray && enableButtons == 1) {
+        pins.digitalWritePin(DigitalPin.P0, 1)
+    }
+    basic.pause(500)
+}
+function pinZeroBroadcast() {
+    if (thisMicrobitNuber == 0) {
+        if (networknumber == suitearray && enableButtons == 1) {
+            basic.pause(100)
+            pins.digitalWritePin(DigitalPin.P0, 1)
+        }
+    }
+}
+input.onPinPressed(TouchPin.P0, function () {
+    if (thisMicrobitNuber == 0) {
+        if (networknumber == suitearray && enableButtons == 1) {
+            radio.sendString("2571")
+        }
     }
 })
 radio.setGroup(123)
@@ -59,32 +106,8 @@ suite = [images.createImage(`
     `)]
 radio.setGroup(123)
 basic.forever(function () {
-    pins.digitalWritePin(DigitalPin.P0, 0)
-    if (thisMicrobitNuber != networknumber) {
-        basic.showIcon(IconNames.No)
-        enableButtons = 0
-    } else {
-        enableButtons = 1
-        suite[suitearray].showImage(0)
-    }
-    networknumber = 0
-    if (input.pinIsPressed(TouchPin.P1) && !(input.pinIsPressed(TouchPin.P2))) {
-        networknumber = 1
-    } else if (input.pinIsPressed(TouchPin.P2) && !(input.pinIsPressed(TouchPin.P1))) {
-        networknumber = 2
-    } else if (input.pinIsPressed(TouchPin.P1) && input.pinIsPressed(TouchPin.P2)) {
-        networknumber = 3
-    }
-    if (suitearray == thisMicrobitNuber) {
-        pins.digitalWritePin(DigitalPin.P0, 1)
-    }
-    if (networknumber == suitearray) {
-        if (pins.digitalReadPin(DigitalPin.P0) < 1) {
-            if (thisMicrobitNuber < 1) {
-                radio.sendString("2571")
-                basic.pause(2000)
-            }
-        }
-    }
-    basic.pause(500)
+    CheckNetworkNumber()
+    checkenableButtons()
+    SetPinvalues()
+    pinZeroBroadcast()
 })
