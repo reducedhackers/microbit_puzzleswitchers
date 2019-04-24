@@ -1,0 +1,90 @@
+let suite: Image[] = []
+let enableButtons = 0
+let networknumber = 0
+let suitearray = 0
+let thisMicrobitNuber = 0
+input.onButtonPressed(Button.A, function () {
+    if (enableButtons == 1) {
+        suitearray += 1
+        if (suitearray > 4) {
+            suitearray = 0
+        }
+        suite[suitearray].showImage(0)
+    }
+})
+input.onButtonPressed(Button.B, function () {
+    if (enableButtons == 1) {
+        suitearray += -1
+        if (suitearray < 0) {
+            suitearray = 4
+        }
+        suite[suitearray].showImage(0)
+    }
+})
+radio.setGroup(123)
+thisMicrobitNuber = 0
+networknumber = 0
+enableButtons = 0
+suitearray = 4
+suite = [images.createImage(`
+    . . # . .
+    . # # # .
+    # # # # #
+    . . # . .
+    . # # # .
+    `), images.createImage(`
+    . # . # .
+    # # # # #
+    . # # # .
+    . # # # .
+    . . # . .
+    `), images.createImage(`
+    . # # # .
+    # . # . #
+    # # # # #
+    . . # . .
+    . # # # .
+    `), images.createImage(`
+    . . # . .
+    . # # # .
+    # # . # #
+    . # # # .
+    . . # . .
+    `), images.createImage(`
+    # . # . #
+    . . . . .
+    # . # . #
+    . . . . .
+    # . # . #
+    `)]
+radio.setGroup(123)
+basic.forever(function () {
+    pins.digitalWritePin(DigitalPin.P0, 0)
+    if (thisMicrobitNuber != networknumber) {
+        basic.showIcon(IconNames.No)
+        enableButtons = 0
+    } else {
+        enableButtons = 1
+        suite[suitearray].showImage(0)
+    }
+    networknumber = 0
+    if (input.pinIsPressed(TouchPin.P1) && !(input.pinIsPressed(TouchPin.P2))) {
+        networknumber = 1
+    } else if (input.pinIsPressed(TouchPin.P2) && !(input.pinIsPressed(TouchPin.P1))) {
+        networknumber = 2
+    } else if (input.pinIsPressed(TouchPin.P1) && input.pinIsPressed(TouchPin.P2)) {
+        networknumber = 3
+    }
+    if (suitearray == thisMicrobitNuber) {
+        pins.digitalWritePin(DigitalPin.P0, 1)
+    }
+    if (networknumber == suitearray) {
+        if (pins.digitalReadPin(DigitalPin.P0) < 1) {
+            if (thisMicrobitNuber < 1) {
+                radio.sendString("2571")
+                basic.pause(2000)
+            }
+        }
+    }
+    basic.pause(500)
+})
