@@ -1,8 +1,8 @@
 let suite: Image[] = []
-let enableButtons = 0
 let networknumber = 0
-let thisMicrobitNuber = 0
+let enableButtons = 0
 let suitearray = 0
+let thisMicrobitNuber = 0
 input.onButtonPressed(Button.B, function () {
     if (enableButtons == 1) {
         suitearray += -1
@@ -11,15 +11,12 @@ input.onButtonPressed(Button.B, function () {
         }
         suite[suitearray].showImage(0)
     }
+    SetPinvalues2()
 })
 function pinZeroBroadcast2() {
     if (thisMicrobitNuber == 0) {
-        basic.showString("A")
         if (enableButtons == 1) {
-            basic.showString("B")
             if (thisMicrobitNuber == suitearray) {
-                basic.showString("C")
-                pins.digitalWritePin(DigitalPin.P0, 1)
                 basic.pause(500)
                 radio.sendString("2571")
             }
@@ -33,11 +30,16 @@ input.onButtonPressed(Button.A, function () {
             suitearray = 0
         }
         suite[suitearray].showImage(0)
+        SetPinvalues2()
     }
 })
 function SetPinvalues2() {
-    if (networknumber == suitearray && enableButtons == 1) {
-        pins.digitalWritePin(DigitalPin.P0, 1)
+    if (thisMicrobitNuber > 0) {
+        if (networknumber == suitearray && enableButtons == 1) {
+            pins.digitalWritePin(DigitalPin.P0, 1)
+        } else {
+            pins.digitalWritePin(DigitalPin.P0, 0)
+        }
     }
 }
 function checkenableButtons2() {
@@ -62,8 +64,11 @@ function CheckNetworkNumber2() {
         networknumber = 0
     }
 }
+input.onPinPressed(TouchPin.P0, function () {
+    pinZeroBroadcast2()
+})
+thisMicrobitNuber = 0
 radio.setGroup(123)
-thisMicrobitNuber = 3
 networknumber = 0
 enableButtons = 0
 suitearray = 4
@@ -98,12 +103,7 @@ suite = [images.createImage(`
     . . . . .
     # . # . #
     `)]
-pins.digitalWritePin(DigitalPin.P0, 0)
 basic.forever(function () {
     CheckNetworkNumber2()
     checkenableButtons2()
-    SetPinvalues2()
-    if (input.pinIsPressed(TouchPin.P0)) {
-        pinZeroBroadcast2()
-    }
 })
