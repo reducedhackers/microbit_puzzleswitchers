@@ -1,5 +1,5 @@
-let SuitesSet: number[] = []
 let suitename: string[] = []
+let SuitesSet: number[] = []
 let bitnum = 0
 let allSuitesTrue = 0
 input.onButtonPressed(Button.AB, function () {
@@ -8,8 +8,12 @@ input.onButtonPressed(Button.AB, function () {
 })
 radio.onReceivedValue(function (name, value) {
     if (bitnum == 5) {
-        basic.showString("" + value)
         SuitesSet[suitename.indexOf(name)] = value
+    }
+    if (SuitesSet[0] > 0 && SuitesSet[1] > 0 && SuitesSet[2] > 0 && SuitesSet[3] > 0) {
+        basic.showIcon(IconNames.Yes)
+    } else {
+        basic.showIcon(IconNames.No)
     }
 })
 input.onButtonPressed(Button.A, function () {
@@ -38,5 +42,5 @@ suitename = ["spade", "diamond", "hearts", "club"]
 SuitesSet = [0, 0, 0, 0]
 basic.showString(suitename[bitnum])
 basic.forever(function () {
-	
+
 })
