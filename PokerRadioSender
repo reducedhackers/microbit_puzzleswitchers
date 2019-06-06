@@ -1,0 +1,21 @@
+
+Search...
+737475767778798081828384858687888972717069
+enableButtons = 0suitearray = 4suite = [images.createImage(`    . . # . .    . # # # .    # # # # #    . . # . .    . # # # .    `), images.createImage(`    . # . # .    # # # # #    # # # # #    . # # # .    . . # . .    `), images.createImage(`    . # # # .    # # # # #networknumber = -1radio.setGroup(213)thisMicrobitNuber = 3}
+        networknumber = 3
+        somepinispressed = 1
+    } else if (input.pinIsPressed(TouchPin.P0) && !(input.pinIsPressed(TouchPin.P1) && !(input.pinIsPressed(TouchPin.P2)))) {
+        networknumber = 0
+        somepinispressed = 1
+    } else {
+
+    }
+}
+thisMicrobitNuber = 3
+
+Find
+No Results
+
+Type a name for your project
+escaperoom14.0.0
+Made 1 formatting edit on line 67
