@@ -1,0 +1,42 @@
+let SuitesSet: number[] = []
+let suitename: string[] = []
+let bitnum = 0
+let allSuitesTrue = 0
+input.onButtonPressed(Button.AB, function () {
+    bitnum = 5
+    basic.showIcon(IconNames.Square)
+})
+radio.onReceivedValue(function (name, value) {
+    if (bitnum == 5) {
+        basic.showString("" + value)
+        SuitesSet[suitename.indexOf(name)] = value
+    }
+})
+input.onButtonPressed(Button.A, function () {
+    if (bitnum <= 3) {
+        basic.showString(suitename[bitnum])
+        radio.sendValue(suitename[bitnum], 1)
+    }
+})
+input.onGesture(Gesture.Shake, function () {
+    bitnum += 1
+    basic.showNumber(bitnum)
+    if (bitnum >= 3) {
+        bitnum = 0
+    }
+})
+input.onButtonPressed(Button.B, function () {
+    if (bitnum <= 3) {
+        basic.showString(suitename[bitnum])
+        radio.sendValue(suitename[bitnum], 0)
+    }
+})
+allSuitesTrue = 0
+radio.setGroup(213)
+bitnum = 0
+suitename = ["spade", "diamond", "hearts", "club"]
+SuitesSet = [0, 0, 0, 0]
+basic.showString(suitename[bitnum])
+basic.forever(function () {
+	
+})
