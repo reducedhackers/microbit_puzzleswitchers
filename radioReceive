@@ -1,0 +1,73 @@
+let DebugON = 0
+let passcode = 0
+let suitename: string[] = []
+let allSuitesTrue = false
+let suite: Image[] = []
+let SuitesSet: number[] = []
+radio.onReceivedValue(function (name, value) {
+    SuitesSet[suitename.indexOf(name)] = value
+    allSuitesTrue = SuitesSet[0] > 0 && SuitesSet[1] > 0 && SuitesSet[2] > 0 && SuitesSet[3] > 0
+    ShowPassCode222222()
+})
+input.onButtonPressed(Button.AB, function () {
+    SuitesSet = [0, 0, 0, 0]
+})
+function paintLED22() {
+    if (allSuitesTrue == false) {
+        for (let index = 0; index <= 3; index++) {
+            if (SuitesSet[index] == 1) {
+                suite[index].showImage(0)
+            } else {
+                basic.showIcon(IconNames.No)
+            }
+            basic.pause(200)
+        }
+    }
+}
+function ShowPassCode222222() {
+    if (allSuitesTrue == true) {
+        for (let i = 0; i < 4; i++) {
+            basic.showString("" + passcode)
+            basic.pause(1000)
+        }
+    }
+}
+radio.setGroup(213)
+suite = [images.createImage(`
+    . . # . .
+    . # # # .
+    # # # # #
+    . . # . .
+    . # # # .
+    `), images.createImage(`
+    . # . # .
+    # # # # #
+    # # # # #
+    . # # # .
+    . . # . .
+    `), images.createImage(`
+    . # # # .
+    # # # # #
+    # # # # #
+    . . # . .
+    . # # # .
+    `), images.createImage(`
+    . . # . .
+    . # # # .
+    # # # # #
+    . # # # .
+    . . # . .
+    `), images.createImage(`
+    # . # . #
+    . . . . .
+    # . . . #
+    . . . . .
+    # . # . #
+    `)]
+suitename = ["spade", "hearts", "club", "diamond"]
+SuitesSet = [0, 0, 0, 0]
+passcode = 2471
+DebugON = 0
+basic.forever(function () {
+    paintLED22()
+})
