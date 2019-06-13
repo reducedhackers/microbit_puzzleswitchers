@@ -1,0 +1,25 @@
+let command = ""
+let HIT = 0
+input.onGesture(Gesture.ThreeG, function () {
+    HIT = 1
+    basic.showIcon(IconNames.Ghost)
+})
+basic.showIcon(IconNames.Sad)
+bluetooth.startUartService()
+HIT = 0
+basic.forever(function () {
+    command = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
+    if (command == "RESET") {
+        HIT = 0
+    }
+    if (HIT == 1) {
+        bluetooth.uartWriteString("HIT")
+    } else {
+        if (command == "ACTIVE") {
+            basic.showIcon(IconNames.StickFigure)
+        }
+        if (command == "WAIT") {
+            basic.showIcon(IconNames.No)
+        }
+    }
+})
