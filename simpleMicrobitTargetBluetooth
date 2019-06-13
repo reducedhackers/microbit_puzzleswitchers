@@ -1,6 +1,9 @@
 let timesinceACTIVE = 0
 let HIT = 0
 let command = ""
+bluetooth.onBluetoothConnected(function () {
+    basic.showIcon(IconNames.Heart)
+})
 input.onGesture(Gesture.ThreeG, function () {
     if (command == "ACTIVE") {
         HIT = 1
