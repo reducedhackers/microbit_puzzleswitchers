@@ -3,38 +3,51 @@ from bluezero import microbit
 
 # https://ukbaz.github.io/howto/ubit_workshop.html
 # this App needs SUDO ..
-# make sure to pair with microbits. 
+# make sure to pair with microbits.
+# Strings to send .. must begin with  #
+# Strings to send .. must end with \n
+# Expected Strings.
+# ACTIVE ... BEGIN .. ACTIVE ... WAIT ... END ..
 
 secretvalue="1001"
-my_text = 'Hello, world'
 targetactive = 0
+
 ubit = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
                          device_addr='C6:EF:44:78:2E:F4',
-                         accelerometer_service=True,
-                         button_service=True,
+                         button_service=False,
                          led_service=True,
                          magnetometer_service=False,
                          pin_service=False,
-                         temperature_service=False)
+                         temperature_service=False,
+                         uart_service=True
+                         )
+
+targetTwo = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
+                         device_addr='FD:B4:42:E6:B6:56',
+                         button_service=False,
+                         led_service=True,
+                         magnetometer_service=False,
+                         pin_service=False,
+                         temperature_service=False,
+                         uart_service=True
+                         )
+
 
 def connect_targets():
-    global ubit , targetactive
-    ubit.connect()
+    global ubit , targetactive, targetTwo
+    targetTwo.connect()
+    #ubit.connect()
     targetactive = 1
 
 
 def disconnect_targets():
-    global ubit , targetactive
-    ubit.connect()
+    global ubit , targetactive, targetTwo
+    targetTwo.disconnect()
+    #ubit.connect()
     targetactive = 0
 
-
-
-
-
-
 def update_lcd(keypress):
-    global secretvalue, targetactive, ubit
+    global secretvalue, targetactive, ubit , targetTwo
     lcdvalue = lcdScreen.value
     #  if keypress is clear then rest screen
     #  if keypress is enter then check against secret
@@ -52,9 +65,11 @@ def update_lcd(keypress):
             lcdvalue="open"
             connect_targets()
             if (targetactive == 1 ):
-                 ubit.text = "BEGIN"
-    lcdScreen.value=lcdvalue       
-    
+                 #ubit.uart = "BEGIN"
+                 targetTwo.uart = "#BEGIN\n"
+                 targetTwo.uart = "#ACTIVE\n"
+    lcdScreen.value=lcdvalue
+
 app = App(title="Weapons Calibration",bg="lightgrey")
 lcd = Box(app,align="top",width="fill",border=True)
 lcdScreen = Text(lcd, text="0000", width="fill",  font="Arial")
@@ -79,3 +94,7 @@ lcdScreen.value="----"
 lcdScreen.text_size=20
 
 app.display()
+
+
+
+
