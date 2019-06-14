@@ -4,7 +4,6 @@ from bluezero import microbit
 # https://ukbaz.github.io/howto/ubit_workshop.html
 # this App needs SUDO ..
 # make sure to pair with microbits.
-# Strings to send .. must begin with  #
 # Strings to send .. must end with \n
 # Expected Strings.
 # ACTIVE ... BEGIN .. ACTIVE ... WAIT ... END ..
@@ -66,8 +65,8 @@ def update_lcd(keypress):
             connect_targets()
             if (targetactive == 1 ):
                  #ubit.uart = "BEGIN"
-                 targetTwo.uart = "#BEGIN\n"
-                 targetTwo.uart = "#ACTIVE\n"
+                 targetTwo.uart = "BEGIN\n"
+                 targetTwo.uart = "ACTIVE\n"
     lcdScreen.value=lcdvalue
 
 app = App(title="Weapons Calibration",bg="lightgrey")
