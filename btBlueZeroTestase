@@ -5,11 +5,13 @@ from bluezero import async_tools
 
 # https://ukbaz.github.io/howto/ubit_workshop.html
 # this App needs SUDO ..
-# make sure to pair with microbits.
-# Strings to send .. must begin with  #
+# make sure to pair with microbits - make the project for Microbit pair with anything . justworks ( doesnt ) 
 # Strings to send .. must end with \n
 # Expected Strings.
-# ACTIVE ... BEGIN .. ACTIVE ... WAIT ... END .. 
+# CONNECT ... BEGIN .. ACTIVE ... INFO ... RESET/DISCONNECT 
+# adding accelerometer helped , but having to have added that way ...
+# Elooping timer on bluezero to let me listen to range
+# YES it will lock the GUI .. we dont care we want to run a game for 2mins where 3 microbits are active for 30seconds at a time randomly
 
 ubit = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
                          device_addr='C6:EF:44:78:2E:F4',
