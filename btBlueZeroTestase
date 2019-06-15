@@ -1,0 +1,75 @@
+from guizero import App,Text,PushButton,Box
+from bluezero import microbit
+from bluezero import async_tools
+
+
+# https://ukbaz.github.io/howto/ubit_workshop.html
+# this App needs SUDO ..
+# make sure to pair with microbits.
+# Strings to send .. must begin with  #
+# Strings to send .. must end with \n
+# Expected Strings.
+# ACTIVE ... BEGIN .. ACTIVE ... WAIT ... END .. 
+
+ubit = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
+                         device_addr='C6:EF:44:78:2E:F4',
+                         accelerometer_service=False,
+                         button_service=False,
+                         led_service=False,
+                         magnetometer_service=False,
+                         pin_service=False,
+                         temperature_service=False,
+                         uart_service=True
+                         )
+eloop=async_tools.EventLoop()
+
+def quitAsync():
+    global ubit
+    ubit.uart='INFO\n'
+    ubit.quit_async()
+
+def ubitNotify(uartRead):
+    label.value=uartRead
+    return true
+
+def connect_targets():
+    global ubit
+    ubit.connect()
+    label.value="CONNECT"
+
+def disconnect_targets():
+    global ubit
+    ubit.disconnect()
+    label.value="DISCONNECT"
+    
+def active_uart():
+    global ubit
+    ubit.uart='ACTIVE\n'
+    label.value = ubit.uart
+    
+
+def begin_uart():
+    global ubit
+    ubit.uart='BEGIN\n'
+    
+def reset_uart():
+    global ubit
+    ubit.uart='RESET\n'
+
+def info_uart():
+    global ubit,eloop
+    ubit.subscribe_uart(ubitNotify)
+    eloop.add_timer(1000,quitAsync)
+    ubit.run_async()
+    
+    
+app = App(title="TEST",bg="lightgrey")
+label = Text(app, text="UART RESPONSE", align="top",width="fill")
+rangedata = Box(app,layout="grid")
+connect_button = PushButton(rangedata,command= connect_targets,text="Connect",grid=[0,1])
+disconnect_button = PushButton(rangedata,command= disconnect_targets,text="Disconnect",grid=[3,1])
+active_button = PushButton(rangedata,command= active_uart,text="ACTIVE",grid=[0,2])
+begin_button = PushButton(rangedata,command= begin_uart,text="BEGIN",grid=[1,2])
+reset_button = PushButton(rangedata,command= reset_uart,text="RESET",grid=[2,2])
+info_button = PushButton(rangedata,command= info_uart,text="INFO",grid=[3,2])
+app.display()
