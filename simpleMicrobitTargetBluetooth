@@ -1,56 +1,48 @@
 input.onGesture(Gesture.Shake, function () {
     if (connected == 1) {
         if (command == "ACTIVE") {
-            HIT = 1
+            HIT = "HIT"
             command = "END"
             basic.showIcon(IconNames.Skull)
+            bluetooth.uartWriteLine("HIT")
         }
     }
-})
-bluetooth.onBluetoothDisconnected(function () {
-    basic.showIcon(IconNames.SmallDiamond)
-    connected = 0
 })
 bluetooth.onBluetoothConnected(function () {
     basic.showIcon(IconNames.Diamond)
     connected = 1
 })
-let timesinceACTIVE = 0
+bluetooth.onBluetoothDisconnected(function () {
+    basic.showIcon(IconNames.SmallDiamond)
+    connected = 0
+    HIT = "MISS"
+    command = "WAIT"
+})
 let connected = 0
 let command = ""
-let HIT = 0
+let HIT = ""
 bluetooth.startUartService()
-HIT = 0
+HIT = "MISS"
 command = "WAIT"
 connected = 0
 basic.forever(function () {
     if (connected == 1) {
         command = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
-        if (command == "RESET") {
-            HIT = 0
-            command = "WAIT"
-        }
         if (command == "INFO") {
-            if (HIT == 0) {
-                bluetooth.uartWriteLine("MISS")
-            } else {
-                bluetooth.uartWriteLine("HIT")
-            }
+            bluetooth.uartWriteLine(HIT)
             command = "ACTIVE"
         }
+        if (command == "RESET") {
+            HIT = "MISS"
+            command = "INFO"
+        }
         if (command == "BEGIN") {
-            timesinceACTIVE = input.runningTime()
             command = "ACTIVE"
         }
         if (command == "ACTIVE") {
-            basic.showIcon(IconNames.StickFigure)
-            if (input.runningTime() - timesinceACTIVE >= 30000) {
-                command = "WAIT"
+            if (HIT == "MISS") {
+                basic.showIcon(IconNames.StickFigure)
             }
-        }
-        if (command == "WAIT" || command == "END") {
-            timesinceACTIVE = input.runningTime()
-            basic.showIcon(IconNames.No)
         }
     }
 })
