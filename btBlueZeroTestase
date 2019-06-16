@@ -5,13 +5,11 @@ from bluezero import async_tools
 
 # https://ukbaz.github.io/howto/ubit_workshop.html
 # this App needs SUDO ..
-# make sure to pair with microbits - make the project for Microbit pair with anything . justworks ( doesnt ) 
+# make sure to pair with microbits.
+# Strings to send .. must begin with  #
 # Strings to send .. must end with \n
 # Expected Strings.
-# CONNECT ... BEGIN .. ACTIVE ... INFO ... RESET/DISCONNECT 
-# adding accelerometer helped , but having to have added that way ...
-# Elooping timer on bluezero to let me listen to range
-# YES it will lock the GUI .. we dont care we want to run a game for 2mins where 3 microbits are active for 30seconds at a time randomly
+# ACTIVE ... BEGIN .. ACTIVE ... WAIT ... END ..
 
 ubit = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
                          device_addr='C6:EF:44:78:2E:F4',
@@ -25,15 +23,6 @@ ubit = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
                          )
 eloop=async_tools.EventLoop()
 
-def quitAsync():
-    global ubit
-    ubit.uart='INFO\n'
-    ubit.quit_async()
-
-def ubitNotify(uartRead):
-    label.value=uartRead
-    return true
-
 def connect_targets():
     global ubit
     ubit.connect()
@@ -43,28 +32,43 @@ def disconnect_targets():
     global ubit
     ubit.disconnect()
     label.value="DISCONNECT"
-    
+
 def active_uart():
     global ubit
     ubit.uart='ACTIVE\n'
-    label.value = ubit.uart
-    
 
 def begin_uart():
     global ubit
     ubit.uart='BEGIN\n'
-    
+
 def reset_uart():
     global ubit
     ubit.uart='RESET\n'
 
+
+def quitAsync():
+    global ubit
+    ubit.uart='INFO\n'
+    ubit.quit_async()
+
+def ubitNotify(uartRead):
+    label.value=uartRead
+    return True
+
+def fetchUart():
+    global ubit
+    ubit.uart='INFO\n'
+
+
 def info_uart():
     global ubit,eloop
-    ubit.subscribe_uart(ubitNotify)
-    eloop.add_timer(1000,quitAsync)
-    ubit.run_async()
-    
-    
+    if ( ubit.connected ):
+            ubit.subscribe_uart(ubitNotify)
+            #eloop.add_timer(1000,fetchUart)
+            #eloop.add_timer(10000,quitAsync)
+            ubit.run_async()
+
+
 app = App(title="TEST",bg="lightgrey")
 label = Text(app, text="UART RESPONSE", align="top",width="fill")
 rangedata = Box(app,layout="grid")
@@ -74,4 +78,5 @@ active_button = PushButton(rangedata,command= active_uart,text="ACTIVE",grid=[0,
 begin_button = PushButton(rangedata,command= begin_uart,text="BEGIN",grid=[1,2])
 reset_button = PushButton(rangedata,command= reset_uart,text="RESET",grid=[2,2])
 info_button = PushButton(rangedata,command= info_uart,text="INFO",grid=[3,2])
+info_button.repeat(1000,info_uart)
 app.display()
