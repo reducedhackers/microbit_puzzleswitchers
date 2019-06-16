@@ -11,6 +11,8 @@ from bluezero import async_tools
 # Expected Strings.
 # ACTIVE ... BEGIN .. ACTIVE ... WAIT ... END ..
 
+targetHit = ['MISS','MISS']
+
 targetOne = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
                          device_addr='C6:EF:44:78:2E:F4',
                          accelerometer_service=False,
@@ -35,19 +37,23 @@ targetTwo = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
 eloop=async_tools.EventLoop()
 
 def targetOneNotify(uartRead):
+    global targetHit
     print('uart read targetone:', uartRead)
-    label.value=uartRead
+    targetHit[0]=uartRead
     return True
 
 def targetTwoNotify(uartRead):
+    global targetHit
     print('uart read targettwo:', uartRead)
-    label.value=uartRead
+    targetHit[1]=uartRead
     return True
 
 
 def update_display():
-    global app
+    global app,targetHit
     print('update display')
+    targetone_button.text=targetHit[0]
+    targettwo_button.text=targetHit[1]
     app.update()
     return True
 
@@ -77,7 +83,6 @@ def quitAsync():
     targetTwo.uart='INFO\n'
     targetTwo.quit_async()
 
-
 def info_uart():
     global targetOne,targetTwo
     targetOne.uart='INFO\n'
@@ -100,8 +105,9 @@ active_button = PushButton(rangedata,command=send_uart,args=['ACTIVE\n'],text="A
 begin_button = PushButton(rangedata,command=send_uart,args=['BEGIN\n'],text="BEGIN",grid=[1,2])
 reset_button = PushButton(rangedata,command=send_uart,args=['RESET\n'],text="RESET",grid=[2,2])
 info_button = PushButton(rangedata,command=send_uart,args=['INFO\n'],text="INFO",grid=[3,2])
+targetone_button = PushButton(rangedata,text="----",grid=[0,3])
+targettwo_button = PushButton(rangedata,text="----",grid=[1,3])
+targetthree_button = PushButton(rangedata,text="----",grid=[2,3])
 eloop.add_timer(500, update_display)
 targetOne.run_async()
 targetTwo.run_async()
-
-
