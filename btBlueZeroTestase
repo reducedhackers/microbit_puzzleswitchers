@@ -21,15 +21,31 @@ ubit = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
                          temperature_service=False,
                          uart_service=True
                          )
+
 eloop=async_tools.EventLoop()
+
+def ubitNotify(uartRead):
+    print('uart read:', uartRead)
+    label.value=uartRead
+    return True
+
+
+def update_display():
+    global app
+    print('update display')
+    app.update()
+    return True
 
 def connect_targets():
     global ubit
     ubit.connect()
+    ubit.subscribe_uart(ubitNotify)
     label.value="CONNECT"
 
 def disconnect_targets():
     global ubit
+    ubit.uart='INFO\n'
+    ubit.quit_async()
     ubit.disconnect()
     label.value="DISCONNECT"
 
@@ -45,28 +61,16 @@ def reset_uart():
     global ubit
     ubit.uart='RESET\n'
 
-
 def quitAsync():
     global ubit
     ubit.uart='INFO\n'
     ubit.quit_async()
 
-def ubitNotify(uartRead):
-    label.value=uartRead
-    return True
-
-def fetchUart():
-    global ubit
-    ubit.uart='INFO\n'
 
 
 def info_uart():
-    global ubit,eloop
-    if ( ubit.connected ):
-            ubit.subscribe_uart(ubitNotify)
-            #eloop.add_timer(1000,fetchUart)
-            #eloop.add_timer(10000,quitAsync)
-            ubit.run_async()
+    ubit.uart='INFO\n'
+    label.value = 'INFO'
 
 
 app = App(title="TEST",bg="lightgrey")
@@ -78,5 +82,5 @@ active_button = PushButton(rangedata,command= active_uart,text="ACTIVE",grid=[0,
 begin_button = PushButton(rangedata,command= begin_uart,text="BEGIN",grid=[1,2])
 reset_button = PushButton(rangedata,command= reset_uart,text="RESET",grid=[2,2])
 info_button = PushButton(rangedata,command= info_uart,text="INFO",grid=[3,2])
-info_button.repeat(1000,info_uart)
-app.display()
+
+eloop.add_timer(500, update_display)
