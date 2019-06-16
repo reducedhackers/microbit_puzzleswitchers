@@ -1,3 +1,87 @@
+from guizero import App,Text,PushButton,Box
+from bluezero import microbit
+from bluezero import async_tools
+
+
+# https://ukbaz.github.io/howto/targetOne_workshop.html
+# this App needs SUDO ..
+# make sure to pair with microbits.
+# Strings to send .. must begin with  #
+# Strings to send .. must end with \n
+# Expected Strings.
+# ACTIVE ... BEGIN .. ACTIVE ... WAIT ... END ..
+
+targetHit = ['MISS','MISS']
+
+targetOne = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
+                         device_addr='C6:EF:44:78:2E:F4',
+                         accelerometer_service=False,
+                         button_service=False,
+                         led_service=False,
+                         magnetometer_service=False,
+                         pin_service=False,
+                         temperature_service=False,
+                         uart_service=True)
+
+targetTwo = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
+                         device_addr='FD:B4:42:E6:B6:56',
+                         accelerometer_service=False,
+                         button_service=False,
+                         led_service=False,
+                         magnetometer_service=False,
+                         pin_service=False,
+                         temperature_service=False,
+                         uart_service=True)
+
+
+eloop=async_tools.EventLoop()
+
+def targetOneNotify(uartRead):
+    global targetHit
+    print('uart read targetone:', uartRead)
+    targetHit[0]=uartRead
+    return True
+
+def targetTwoNotify(uartRead):
+    global targetHit
+    print('uart read targettwo:', uartRead)
+    targetHit[1]=uartRead
+    return True
+
+
+def update_display():
+    global app,targetHit
+    print('update display')
+    targetone_button.text=targetHit[0]
+    targettwo_button.text=targetHit[1]
+    app.update()
+    return True
+
+def connect_targets():
+    global targetOne,targetTwo
+    targetOne.connect()
+    targetOne.subscribe_uart(targetOneNotify)
+    targetTwo.connect()
+    targetTwo.subscribe_uart(targetTwoNotify)
+    label.value="CONNECT"
+
+def disconnect_targets():
+    global targetOne,targetTwo
+    targetOne.uart='INFO\n'
+    targetOne.quit_async()
+    targetOne.disconnect()
+    targetTwo.uart='INFO\n'
+    targetTwo.quit_async()
+    targetTwo.disconnect()
+    label.value="DISCONNECT"
+
+
+def quitAsync():
+    global targetOne,targetTwo
+    targetOne.uart='INFO\n'
+    targetOne.quit_async()
+    targetTwo.uart='INFO\n'
+    targetTwo.quit_async()
 
 
 def info_uart():
