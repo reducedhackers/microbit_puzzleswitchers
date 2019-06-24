@@ -199,6 +199,7 @@ button_enter  = PushButton(keypad, text="enter", grid=[2,4],args=["enter"],comma
 lcdScreen.bg="white"
 lcdScreen.value="----"
 lcdScreen.text_size=20
+app.set_full_screen('ESC')
 eloop.add_timer(500,update_Display)
 connect_targets()
 uartSend('RESET\n')
