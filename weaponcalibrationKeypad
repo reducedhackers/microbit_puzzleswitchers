@@ -11,13 +11,14 @@ from bluezero import async_tools
 # Expected Strings.
 # ACTIVE ... BEGIN .. ACTIVE ... WAIT ... END .. 
 
-targetHit = ['MISS','MISS','MISS']
+
 ubitDeviceAddr=['C6:EF:44:78:2E:F4','FD:B4:42:E6:B6:56','DE:BB:08:3B:F2:08']
 secretvalue="2741"
 resetValue="0000"
 targetactive = 0
 counter=100
-gameresult=""
+gameResult=""
+targetHit = ['MISS','MISS','MISS']
 
 
 eloop=async_tools.EventLoop()
@@ -54,18 +55,35 @@ ubitTargetOne = microbit.Microbit(adapter_addr='B8:27:EB:3A:C9:38',
                          temperature_service=False,
                          uart_service=True)
 
-def updateCountDown():
-    global targetactive,counter,targetHit
-    lcdvalue=0
-    if((targetactive==1) and (counter<1)):
-        targetactive=0
-        lcdScreen.value="----"
-        counter=100
-        for targets in targetButton:
+def clearGame():
+    global targetHit,counter,targetactive,gameResult
+    gameResult=""
+    counter=100
+    targetactive=0
+    targetHit = ['MISS','MISS','MISS']
+    for targets in targetButton:
+                targets.text="MISS"
                 targets.visible=False
-        uartSend('RESET\n')
-        disconnect_targets()
-    if ( targetactive==1):
+    uartSend('RESET\n')
+    lcdScreen.value="----"
+    return True
+    
+
+def threehits():
+    global targetHit
+    return (( targetHit[0]=='HIT' ) and (targetHit[1]=='HIT'  ) and (targetHit[2]=='HIT' )  )
+
+
+def updateCountDown():
+    global targetactive,counter,targetHit,gameResult
+    lcdvalue=""
+    if (((targetactive==1) ) and ( threehits() )):
+        clearGame()
+        gameResult="WIN"
+        lcdScreen.value="RESOLVED"
+    if((targetactive==1) and (counter<1)):
+        clearGame()
+    if ( (targetactive==1) and (gameResult=="")):
         counter-=1
         lcdvalue="{0:b}".format(counter)
         lcdScreen.value=lcdvalue
@@ -74,20 +92,17 @@ def updateCountDown():
 
 def uartReadzero(uartResult):
     global targetHit
-    print (uartResult)
-    targetHit[0]=uartResult
-    return true
+    targetHit[0]=uartResult.rstrip()
+    return True
 
 def uartReadone(uartResult):
     global targetHit
-    print (uartResult)
-    targetHit[1]=uartResult
+    targetHit[1]=uartResult.rstrip()
     return True
 
 def uartReadtwo(uartResult):
     global targetHit
-    print (uartResult)
-    targetHit[2]=uartResult
+    targetHit[2]=uartResult.rstrip()
     return True
     
 def uartSend(uartCommand):
@@ -105,7 +120,8 @@ def connect_targets():
     ubitTargetTwo.connect()    
     ubitTargetZero.subscribe_uart(uartReadzero)
     ubitTargetOne.subscribe_uart(uartReadone)
-    ubitTargetTwo.subscribe_uart(uartReadtwo)        
+    ubitTargetTwo.subscribe_uart(uartReadtwo)
+    return True
         
         
 def disconnect_targets():
@@ -114,15 +130,16 @@ def disconnect_targets():
     ubitTargetZero.disconnect()
     ubitTargetOne.disconnect()
     ubitTargetTwo.disconnect()
+    return True
     
 
 def update_Display():
-    global app,targetHit,targetactive
+    global app,targetHit,targetactive,gameResult
     updateCountDown()
     targetIndex=0
-    if ( targetactive== 1):
+    if ( (targetactive== 1)  and ( gameResult=="") ):
             for targets in targetButton:
-                targets.text=targetHit[targetIndex]
+                targets.text=targetHit[targetIndex].rstrip()
                 targetIndex+=1
     app.update()
     return True
@@ -136,19 +153,13 @@ def update_lcd(keypress):
     #  if keypress is enter then check against secret
     #     if keypres is enter and secret matches broadcast start game
     if (keypress =='clear'):
-        for targets in targetButton:
-                targets.visible=False
         lcdScreen.value='----'
         return
     #  if lcdvalue contains a minus sign add value to left of string
     #  if lcdvalue contains no minus sign ignore action    
     if (keypress == 'enter') :
         if( lcdScreen.value == resetValue ):
-            for targets in targetButton:
-                targets.text="MISS"
-                targets.visible=False
-            targetactive=0
-            disconnect_targets()
+            clearGame()
             lcdvalue="----"
         if( lcdScreen.value == secretvalue ):
             for targets in targetButton:
@@ -163,6 +174,7 @@ def update_lcd(keypress):
             lcdvalue+=keypress
             lcdvalue = lcdvalue[-4:]
     lcdScreen.value=lcdvalue
+    return True
     
 targetButton=[]
 app = App(title="Weapons Calibration",bg="lightgrey")
@@ -188,6 +200,8 @@ lcdScreen.bg="white"
 lcdScreen.value="----"
 lcdScreen.text_size=20
 eloop.add_timer(500,update_Display)
+connect_targets()
+uartSend('RESET\n')
 ubitTargetZero.run_async()
 ubitTargetOne.run_async()
 ubitTargetTwo.run_async()
